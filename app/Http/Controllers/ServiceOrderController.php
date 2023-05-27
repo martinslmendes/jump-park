@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceOrder;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 
 class ServiceOrderController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function index(Request $request): JsonResponse
     {
         $vehiclePlate = $request->filled('vehiclePlate') ? $request->input('vehiclePlate') : '';
@@ -28,12 +35,36 @@ class ServiceOrderController extends Controller
         ]));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $dateFormat = 'Y-m-d H:i:s';
+        $rules = [
+            'vehiclePlate' => 'required|string',
+            'entryDateTime' => 'required|date_format:' . $dateFormat,
+            'exitDateTime' => 'required|date_format:' . $dateFormat,
+            'priceType' => 'required|string',
+            'price' => 'required|numeric'
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], Response::HTTP_BAD_REQUEST);
+        }
+
+        $serviceOrder = new ServiceOrder();
+        $user = User::finById($request->userId);
+        $serviceOrder->user()->associate($user);
+        $serviceOrder->vehiclePlate = $request->vehiclePlate;
+        $serviceOrder->entryDateTime = \DateTime::createFromFormat($dateFormat, $request->entryDateTime);
+        $serviceOrder->exitDateTime = \DateTime::createFromFormat($dateFormat, $request->exitDateTime);
+        $serviceOrder->priceType = $request->priceType;
+        $serviceOrder->price = $request->price;
+
+        if($serviceOrder->save()){
+            return response()->json(['message'=>'Data saved successfully']);
+        }
     }
+
 
 }

@@ -20,5 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::prefix('service-orders')->group(function () {
     Route::post('index', [ServiceOrderController::class, 'index']);
+    Route::post('store', [ServiceOrderController::class, 'store']);
 });
 
