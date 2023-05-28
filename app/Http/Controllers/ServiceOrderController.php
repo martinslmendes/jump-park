@@ -53,7 +53,7 @@ class ServiceOrderController extends Controller
         }
 
         $serviceOrder = new ServiceOrder();
-        $user = User::finById($request->userId);
+        $user = User::findById($request->userId);
         $serviceOrder->user()->associate($user);
         $serviceOrder->vehiclePlate = $request->vehiclePlate;
         $serviceOrder->entryDateTime = \DateTime::createFromFormat($dateFormat, $request->entryDateTime);

@@ -15,7 +15,7 @@ class User extends Model
         return $this->hasMany(ServiceOrder::class, 'userId');
     }
 
-    public static function finById($id)
+    public static function findById($id)
     {
         return self::where('id', $id)->first();
     }
